@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calculator</title>
+  <style>
+    .main-container {
+      display: flex;
+      gap: 40px;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 20px;
+    }
+
+    .calculator {
+      background: rgba(167, 163, 214, 0.7);
+      backdrop-filter: blur(12px);
+      border-radius: 20px;
+      padding: 25px;
+      width: 330px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .display {
+      height: 70px;
+      background: #ffffffcc;
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 20px;
+      font-size: 28px;
+      text-align: right;
+      color: #333;
+      box-shadow: inset 2px 2px 5px #bc6666, inset -2px -2px 5px #fff;
+      overflow-x: auto;
+    }
+
+    .buttons {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 15px;
+    }
+
+    .btn {
+      padding: 20px;
+      font-size: 20px;
+      background: #ffffffaa;
+      border: 1px solid #e0e0e0;
+      border-radius: 12px;
+      cursor: pointer;
+      color: #333;
+      transition: 0.2s ease;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .btn:hover {
+      background: #ffffff;
+      transform: translateY(-2px);
+    }
+
+    .operator {
+      background-color: #ffd166;
+      color: #000;
+    }
+
+    .function {
+      background-color: #ef476f;
+      color: white;
+    }
+
+    .equals {
+      background-color: #5a1fc1;
+      color: white;
+      grid-row: span 2;
+    }
+
+    .zero {
+      grid-column: span 2;
+    }
+
+    .history-panel {
+      max-width: 300px;
+    }
+
+    .history-panel h3 {
+      margin-top: 0;
+    }
+
+    .clear-history-btn {
+      margin-bottom: 10px;
+      padding: 8px 12px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="main-container">
+    <div class="calculator">
+      <div class="display" id="display">0</div>
+      <div class="buttons">
+        <button class="btn function" onclick="clearDisplay()">C</button>
+        <button class="btn operator" onclick="appendValue('/')">÷</button>
+        <button class="btn operator" onclick="appendValue('*')">×</button>
+        <button class="btn operator" onclick="appendValue('-')">−</button>
+
+        <button class="btn" onclick="appendValue('7')">7</button>
+        <button class="btn" onclick="appendValue('8')">8</button>
+        <button class="btn" onclick="appendValue('9')">9</button>
+        <button class="btn operator" onclick="appendValue('+')">+</button>
+
+        <button class="btn" onclick="appendValue('4')">4</button>
+        <button class="btn" onclick="appendValue('5')">5</button>
+        <button class="btn" onclick="appendValue('6')">6</button>
+        <button class="btn equals" onclick="calculateResult()">=</button>
+
+        <button class="btn" onclick="appendValue('1')">1</button>
+        <button class="btn" onclick="appendValue('2')">2</button>
+        <button class="btn" onclick="appendValue('3')">3</button>
+
+        <button class="btn zero" onclick="appendValue('0')">0</button>
+        <button class="btn" onclick="appendValue('.')">.</button>
+      </div>
+    </div>
+
+    <div class="history-panel">
+      <h3>History</h3>
+      <button class="clear-history-btn" onclick="clearHistory()">Clear History</button>
+      <ul id="history-list"></ul>
+    </div>
+  </div>
+
+  <script>
+    let display = document.getElementById("display");
+    let expression = "";
+
+    window.onload = renderHistory;
+
+    function appendValue(value) {
+      if (display.textContent === "0") display.textContent = "";
+      expression += value;
+      display.textContent = expression;
+    }
+
+    function clearDisplay() {
+      expression = "";
+      display.textContent = "0";
+    }
+
+    function calculateResult() {
+      try {
+        const result = eval(expression);
+        const fullExpression = `${expression} = ${result}`;
+        expression = result.toString();
+        display.textContent = expression;
+
+        saveToHistory(fullExpression);
+        renderHistory();
+      } catch {
+        display.textContent = "Error";
+        expression = "";
+      }
+    }
+
+    function saveToHistory(entry) {
+      let history = JSON.parse(localStorage.getItem("calcHistory")) || [];
+      history.unshift(entry);
+      if (history.length > 10) history.pop();
+      localStorage.setItem("calcHistory", JSON.stringify(history));
+    }
+
+    function renderHistory() {
+      const historyList = document.getElementById("history-list");
+      historyList.innerHTML = "";
+      const history = JSON.parse(localStorage.getItem("calcHistory")) || [];
+      history.forEach(entry => {
+        const li = document.createElement("li");
+        li.textContent = entry;
+        historyList.appendChild(li);
+      });
+    }
+
+    function clearHistory() {
+      localStorage.removeItem("calcHistory");
+      renderHistory();
+    }
+  </script>
+</body>
+</html>
